@@ -1,8 +1,8 @@
-# Widelamb (Functional Programming Semestral project)
+# Widelamb
 
-A parser, a Hindley-Milner type checker and an interpreter of a simple functional language.
+Functional Programming Semestral project including a parser, a Hindley-Milner type checker and an interpreter of a simple functional language.
 
-## Assignment
+## Assignment (taken from http://petr.pudlak.name/dw/fp:project)
 
 Create a Hindley-Milner type-checker (60 points) and a simple interpreter (30 points) for a simple functional language. Write the Euclid's algorithm for searching the greatest common divisor in the language (10 points). 
 A term of the language is one of: 
