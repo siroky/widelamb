@@ -3,11 +3,14 @@ package widelamb
 import util.parsing.combinator.{PackratParsers, JavaTokenParsers}
 import util.parsing.input.CharSequenceReader
 
-class WidelambParser extends JavaTokenParsers with PackratParsers
-{
-    def parse(s: String): ParseResult[Term] = {
+trait Parser extends JavaTokenParsers with PackratParsers {
+
+    def parse(s: String): Either[String, Term] = {
         val phraseParser = phrase(term)
-        phraseParser(new CharSequenceReader(s))
+        phraseParser(new CharSequenceReader(s)) match {
+            case Success(result, _) => Right(result)
+            case NoSuccess(message, _) => Left(message)
+        }
     }
 
     private lazy val term: PackratParser[Term] =

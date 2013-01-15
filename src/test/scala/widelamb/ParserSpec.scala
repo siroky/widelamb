@@ -3,7 +3,7 @@ package widelamb
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FlatSpec
 
-class ParserSpec extends WidelambParser with FlatSpec with ShouldMatchers
+class ParserSpec extends Parser with FlatSpec with ShouldMatchers
 {
     val List(x, y, z) = List("x", "y", "z").map(Variable)
 
@@ -78,8 +78,8 @@ class ParserSpec extends WidelambParser with FlatSpec with ShouldMatchers
 
     private def parsing(s: String): Term = {
         parse(s) match {
-            case Success(t: Term, _) => t
-            case NoSuccess(message, _) => fail(message)
+            case Right(result) => { println(result); result }
+            case Left(message) => fail(message)
         }
     }
 }
