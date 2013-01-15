@@ -1,7 +1,7 @@
 package widelamb
 
 sealed abstract class Term
-sealed abstract class Literal extends Term
+sealed abstract class Literal(val tpe: BuiltInType) extends Term
 
 case class Variable(name: String) extends Term {
     override def toString = name
@@ -12,7 +12,7 @@ case class Application(function: Term, argument: Term) extends Term {
 }
 
 case class Abstraction(variable: Variable, body: Term) extends Term {
-    override def toString = s"(\\variable . $body)"
+    override def toString = s"(\\$variable . $body)"
 }
 
 case class Let(variable: Variable, value: Term, body: Term) extends Term {
@@ -23,6 +23,6 @@ case class Fix(variable: Variable, body: Term) extends Term {
     override def toString = s"(fix $variable . $body)"
 }
 
-case class IntegerLiteral(value: Int) extends Literal {
+case class IntegerLiteral(value: Int) extends Literal(Integer) {
     override def toString = value.toString
 }
