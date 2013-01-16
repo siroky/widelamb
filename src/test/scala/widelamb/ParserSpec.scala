@@ -76,7 +76,7 @@ class ParserSpec extends Parser with FlatSpec with ShouldMatchers
         )
     }
 
-    private def parsing(s: String): Term = {
+    def parsing(s: String): Term = {
         parse(s) match {
             case Right(result) => result
             case Left(message) => fail(message)

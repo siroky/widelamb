@@ -2,7 +2,7 @@ package widelamb
 
 sealed abstract class TypeScheme
 sealed abstract class Type extends TypeScheme
-sealed abstract class BuiltInType extends Type
+sealed abstract class TypeConstant extends Type
 
 case class ForAll(variable: TypeVariable, body: TypeScheme) extends TypeScheme {
     override def toString = s"(V$variable . $body)"
@@ -36,6 +36,6 @@ object Function {
     }
 }
 
-case object Integer extends BuiltInType {
+case object Integer extends TypeConstant {
     override def toString = "Int"
 }

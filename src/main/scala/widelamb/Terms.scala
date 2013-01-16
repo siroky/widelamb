@@ -1,7 +1,7 @@
 package widelamb
 
 sealed abstract class Term
-sealed abstract class Literal(val tpe: BuiltInType) extends Term
+sealed abstract class Literal(val tpe: TypeConstant) extends Term
 
 case class Variable(name: String) extends Term {
     override def toString = name
