@@ -37,5 +37,5 @@ object Function {
 }
 
 case object Integer extends TypeConstant {
-    override def toString = "Int"
+    override def toString = "N"
 }

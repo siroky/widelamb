@@ -13,31 +13,34 @@ trait Typer {
             Variable("plus") -> Function(List(Integer, Integer), Integer),
             Variable("minus") -> Function(List(Integer, Integer), Integer),
             Variable("div") -> Function(List(Integer, Integer), Integer),
+            Variable("mod") -> Function(List(Integer, Integer), Integer),
             Variable("mul") -> Function(List(Integer, Integer), Integer)
         )
     )
 
-    def computeType(term: Term): Either[String, Type] = computeTermType(initialContext, term).right.map(_._2)
-
-    def computeTermType(context: Context, term: Term): Result = term match {
-        case literal: Literal => Right(Substitution.identity, literal.tpe)
-        case variable: Variable => computeVariableType(context, variable)
-        case application: Application => computeApplicationType(context, application)
-        case abstraction: Abstraction => computeAbstractionType(context, abstraction)
-        case let: Let => computeLetType(context, let)
-        case fix: Fix => Left("TODO")
+    def typeTerm(term: Term): Either[String, (Term, Type)] = {
+        typeTerm(initialContext, term).right.map(result => (term, result._2))
     }
 
-    def computeVariableType(context: Context, variable: Variable): Result = {
+    def typeTerm(context: Context, term: Term): Result = term match {
+        case literal: Literal => Right(Substitution.identity, literal.tpe)
+        case variable: Variable => typeVariable(context, variable)
+        case application: Application => typeApplication(context, application)
+        case abstraction: Abstraction => typeAbstraction(context, abstraction)
+        case let: Let => typeLet(context, let)
+        case fix: Fix => typeFix(context, fix)
+    }
+
+    def typeVariable(context: Context, variable: Variable): Result = {
         context.get(variable) match {
             case Some(sigma) => Right(Substitution.identity, renameAndDropForAlls(sigma))
             case None => Left(s"Can't find type of the free variable '$variable'.")
         }
     }
 
-    def computeApplicationType(context: Context, application: Application): Result = {
-        computeTermType(context, application.function).right.flatMap { case (s1, tau1) =>
-            computeTermType(s1(context), application.argument).right.flatMap { case (s2, tau2) =>
+    def typeApplication(context: Context, application: Application): Result = {
+        typeTerm(context, application.function).right.flatMap { case (s1, tau1) =>
+            typeTerm(s1(context), application.argument).right.flatMap { case (s2, tau2) =>
                 val beta = uniqueTypeVariable()
                 mostGeneralUnifier(s2(tau1), Function(tau2, beta)) match {
                     case Some(unifier) => Right(unifier compose s2 compose s1, unifier(beta))
@@ -50,23 +53,45 @@ trait Typer {
         }
     }
 
-    def computeAbstractionType(context: Context, abstraction: Abstraction): Result = {
+    def typeAbstraction(context: Context, abstraction: Abstraction): Result = {
         val alpha = uniqueTypeVariable()
         val updatedContext = context.updated(abstraction.variable, alpha)
-        computeTermType(updatedContext, abstraction.body).right.flatMap { case (s1, tau1) =>
+        typeTerm(updatedContext, abstraction.body).right.flatMap { case (s1, tau1) =>
             Right(s1, Function(s1(alpha), tau1))
         }
     }
 
-    def computeLetType(context: Context, let: Let): Result = {
-        computeTermType(context, let.value).right.flatMap { case (s1, tau1) =>
+    def typeLet(context: Context, let: Let): Result = {
+        typeTerm(context, let.value).right.flatMap { case (s1, tau1) =>
             val substitutedContext = s1(context)
             val variableScheme = substitutedContext.closureOf(tau1)
             val updatedContext = substitutedContext.updated(let.variable, variableScheme)
-            computeTermType(updatedContext, let.body).right.flatMap { case (s2, tau2) =>
+            typeTerm(updatedContext, let.body).right.flatMap { case (s2, tau2) =>
                 Right(s2 compose s1, tau2)
             }
         }
+    }
+
+    def typeFix(context: Context, fix: Fix): Result = {
+
+        def computationLoop(context: Context, sigma: TypeScheme, substitutions: List[Substitution]): Result = {
+            typeTerm(context, fix.body).right.flatMap { case (s, tau) =>
+                val substitutedContext = s(context)
+                val nextSigma = substitutedContext.closureOf(tau)
+                val nextContext = substitutedContext.updated(fix.variable, nextSigma)
+                val nextSubstitutions = s :: substitutions
+                if (s(sigma) == nextSigma) {
+                    Right(nextSubstitutions.reverse.reduce(_ compose _), tau)
+                } else {
+                    computationLoop(nextContext, nextSigma, nextSubstitutions)
+                }
+            }
+        }
+
+        val alpha = uniqueTypeVariable()
+        val initialSigma = ForAll(alpha, alpha)
+        val initialContext = context.updated(fix.variable, initialSigma)
+        computationLoop(initialContext, initialSigma, Nil)
     }
 
     def mostGeneralUnifier(tau1: Type, tau2: Type): Option[Substitution] = {

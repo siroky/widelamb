@@ -29,7 +29,6 @@ class TyperSpec extends Parser with Typer with FlatSpec with ShouldMatchers
 
     it should "type lambda application" in {
         typing("""plus 1 2""") shouldMatch integerTemplate
-        typing("""plus (\x . x)""") shouldMatch integerTemplate
         typing("""plus 1""") shouldMatch { case Function(Integer, Integer) => true }
         typing("""(\x . x) 1""") shouldMatch integerTemplate
         typing("""(\x . x) (\x . x)""") shouldMatch identityFunctionTemplate
@@ -41,8 +40,16 @@ class TyperSpec extends Parser with Typer with FlatSpec with ShouldMatchers
         typing("""let x = (\x . x) in (x mul) (x 1) (x 2)""") shouldMatch integerTemplate
     }
 
+    it should "type fix" in {
+        typing("""fix f . mul 10 20""") shouldMatch integerTemplate
+        typing("""(fix fact . \x . ifzero x 1 (mul x (fact (minus x 1)))) 10""") shouldMatch integerTemplate
+        typing("""(fix gcd . \a . \b . ifzero b a (gcd b (mod a b)))""") shouldMatch {
+            case Function(Integer, Function(Integer, Integer)) => true
+        }
+    }
+
     def typing(s: String): (Term, Type) = {
-        parse(s).right.flatMap(term => computeType(term).right.map(tau => (term, tau))) match {
+        parse(s).right.flatMap(typeTerm _) match {
             case Right(result) => result
             case Left(message) => fail(message)
         }
