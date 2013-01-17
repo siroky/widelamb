@@ -19,11 +19,11 @@ trait Parser extends JavaTokenParsers with PackratParsers {
 
     private lazy val finalTerm: PackratParser[Term] =
         ("(" ~> term <~ ")") |
-        fix |
-        let |
         abstraction |
+        let |
+        fix |
         variable |
-        integerLiteral
+        integerConstant
 
     private lazy val application: PackratParser[Application] =
         term ~ finalTerm ^^ { case f ~ v => Application(f, v) }
@@ -40,6 +40,6 @@ trait Parser extends JavaTokenParsers with PackratParsers {
     private lazy val variable =
         not("let" | "in" | "fix") ~> """[a-zA-Z]+""".r ^^ { i => Variable(i) }
 
-    private lazy val integerLiteral =
-        wholeNumber ^^ { n => IntegerLiteral(n.toInt) }
+    private lazy val integerConstant =
+        wholeNumber ^^ { n => IntegerConstant(n.toInt) }
 }

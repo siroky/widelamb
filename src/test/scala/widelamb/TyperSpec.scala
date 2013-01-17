@@ -33,6 +33,16 @@ class TyperSpec extends Parser with Typer with FlatSpec with ShouldMatchers
         typing("""(\x . x) 1""") shouldMatch integerTemplate
         typing("""(\x . x) (\x . x)""") shouldMatch identityFunctionTemplate
         typing("""(\x . ifzero x 1 (mul x (mul (minus x 1) 2))) 10""") shouldMatch integerTemplate
+        typing("""(\f . f 10 \x . x)""") shouldMatch {
+            case
+                Function(
+                    Function(
+                        Integer,
+                        Function(Function(t1: TypeVariable, t2: TypeVariable), t3: TypeVariable)
+                    ),
+                    t4: TypeVariable
+                ) if t1 == t2 && t3 == t4 => true
+        }
     }
 
     it should "type let" in {
@@ -43,13 +53,14 @@ class TyperSpec extends Parser with Typer with FlatSpec with ShouldMatchers
     it should "type fix" in {
         typing("""fix f . mul 10 20""") shouldMatch integerTemplate
         typing("""(fix fact . \x . ifzero x 1 (mul x (fact (minus x 1)))) 10""") shouldMatch integerTemplate
-        typing("""(fix gcd . \a . \b . ifzero b a (gcd b (mod a b)))""") shouldMatch {
+        typing("""(fix wrongGcd . \a . \b . ifzero b a (wrongGcd b (div a b)))""") shouldMatch {
             case Function(Integer, Function(Integer, Integer)) => true
         }
+        typing("""let mod = (\x . \y . minus x (mul y (div x y))) in (fix gcd . \a . \b . ifzero b a (gcd b (mod a b))) 1071 462""") shouldMatch integerTemplate
     }
 
     def typing(s: String): (Term, Type) = {
-        parse(s).right.flatMap(typeTerm _) match {
+        parse(s).right.flatMap(typeTerm) match {
             case Right(result) => result
             case Left(message) => fail(message)
         }

@@ -8,9 +8,9 @@ class ParserSpec extends Parser with FlatSpec with ShouldMatchers
     val List(x, y, z) = List("x", "y", "z").map(Variable)
 
     "The Parser" should "parser integer literals" in {
-        parsing("""0""") should equal(IntegerLiteral(0))
-        parsing("""123""") should equal(IntegerLiteral(123))
-        parsing("""-456""") should equal(IntegerLiteral(-456))
+        parsing("""0""") should equal(IntegerConstant(0))
+        parsing("""123""") should equal(IntegerConstant(123))
+        parsing("""-456""") should equal(IntegerConstant(-456))
     }
 
     it should "parser variables" in {
@@ -56,7 +56,7 @@ class ParserSpec extends Parser with FlatSpec with ShouldMatchers
                         Application(
                             Application(
                                 Application(Variable("ifzero"), x),
-                                IntegerLiteral(1)
+                                IntegerConstant(1)
                             ),
                             Application(
                                 Application(Variable("mul"), x),
@@ -64,14 +64,14 @@ class ParserSpec extends Parser with FlatSpec with ShouldMatchers
                                     Variable("fact"),
                                     Application(
                                         Application(Variable("minus"), x),
-                                        IntegerLiteral(1)
+                                        IntegerConstant(1)
                                     )
                                 )
                             )
                         )
                     )
                 ),
-                IntegerLiteral(10)
+                IntegerConstant(10)
             )
         )
     }
