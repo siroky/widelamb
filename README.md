@@ -5,12 +5,15 @@ Functional Programming Semestral project including a parser, a Hindley-Milner ty
 ## Usage
 
 1. Execute `sbt.bat` (on Windows) or `sbt` (on Unix) in the root directory.
-2. Run the compiler on your program. If everything goes fine, the compiler prints your program compiled to JavaScript. Try executing it at http://jsfiddle.net.
+2. Run the compiler by executing `run "code of your program"`. If everything goes fine, the compiler prints your program compiled to JavaScript. Try executing it at http://jsfiddle.net.
 
-### Examples
+### Factorial example
 
-- Factorial `run "(fix fact . \\x . ifzero x 1 (mul x (fact (minus x 1)))) 10"`
-- Greatest common divisor `run "let mod = (\\x . \\y . minus x (mul y (div x y))) in (fix gcd . \\a . \\b . ifzero b a (gcd b (mod a b))) 1071 462`
+`run "(fix fact . \\x . ifzero x 1 (mul x (fact (minus x 1)))) 10"`
+
+### Greatest common divisor example
+
+`run "let mod = (\\x . \\y . minus x (mul y (div x y))) in (fix gcd . \\a . \\b . ifzero b a (gcd b (mod a b))) 1071 462`
 
 ### Tests
 
