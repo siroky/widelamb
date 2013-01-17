@@ -1,6 +1,6 @@
 # Widelamb
 
-Functional Programming Semestral project including a parser, a Hindley-Milner type checker and an interpreter of a simple functional language.
+Functional Programming Semestral project including a parser, a Hindley-Milner type checker and a JavaScript backend for a simple functional language.
 
 ## Usage
 
