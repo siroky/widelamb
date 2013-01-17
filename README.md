@@ -15,7 +15,7 @@ To run the tests, execute `test` within SBT.
 
 ### Greatest common divisor example
 
-`run "let mod = (\\x . \\y . minus x (mul y (div x y))) in (fix gcd . \\a . \\b . ifzero b a (gcd b (mod a b))) 1071 462`
+`run "let mod = (\\x . \\y . minus x (mul y (div x y))) in (fix gcd . \\a . \\b . ifzero b a (gcd b (mod a b))) 1071 462"`
 
 ## Assignment (taken from http://petr.pudlak.name/dw/fp:project)
 
